@@ -1,0 +1,10 @@
+.deleteUser {
+    background: none;
+    padding-left: 1rem;
+    border: none;
+    cursor: pointer;
+}
+
+.userListItem {
+    display: flex;
+}
