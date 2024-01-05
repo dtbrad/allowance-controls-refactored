@@ -1,20 +1,20 @@
 import {LoaderFunctionArgs, redirect} from "@remix-run/node";
 import {
     Link,
-    Outlet,
     useLoaderData,
     useLocation,
     useParams,
     useSearchParams
 } from "@remix-run/react";
-import getUserFromCookie from "~/helpers-server/getUserFromCookie.server";
 import {Role} from "~/db/dbTypes";
 import getTransactions from "~/db/getTransactions";
 import getUserBalance from "~/db/getUserBalance";
-import TransactionsTable from "~/sharedComponents/TransactionsTable";
-import styles from "./route.module.css";
-import Pagination from "~/sharedComponents/Pagination";
+import getUserFromCookie from "~/helpers-server/getUserFromCookie.server";
 import formatCurrency from "~/helpers/formatCurrency";
+import Pagination from "~/sharedComponents/Pagination";
+import TransactionsTable from "~/sharedComponents/TransactionsTable";
+import AddTransactionForm from "./AddTransactionForm";
+import styles from "./route.module.css";
 
 export async function loader({params, request}: LoaderFunctionArgs) {
     const {role} = await getUserFromCookie(request);
@@ -69,6 +69,7 @@ export default function UserPage() {
                 </div>
             </div>
             <TransactionsTable transactions={transactions} />
+            <AddTransactionForm />
         </div>
     );
 }
