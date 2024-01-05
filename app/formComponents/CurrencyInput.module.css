@@ -6,7 +6,7 @@
     width: 100%;
     border: 1px solid #ced4da;
     border-radius: 5px;
-    padding: 6px 10px;
+    padding: 6px 20px;
 }
 
 .inputField:focus {
@@ -27,11 +27,19 @@
     justify-content: space-between;
 }
 
-.dollarSign {
-    color: gray;
+.currencyWrap {
+    position: relative;
+}
+
+.currencyCode {
     position: absolute;
-    left: 0.5rem;
-    top: 68%;
-    transform: translateY(-50%);
-    pointer-events: none; /* Allows clicking through the $ sign */
+    left: 8px;
+    top: 7px;
+    color: gray;
+}
+
+.textCurrency {
+    padding: 10px 20px;
+    border: solid 1px #ccc;
+    border-radius: 5px;
 }

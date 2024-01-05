@@ -29,13 +29,15 @@ export default function CurrencyInput({
                     <div className={styles.inputErrorText}>{error}</div>
                 )}
             </label>
-            <span className={styles.dollarSign}>$</span>
-            <input
-                autoComplete="off"
-                required
-                className={inputClassName}
-                {...getInputProps({id: name, type: "number", step: 0.01})}
-            />
+            <div className={styles.currencyWrap}>
+                <span className={styles.currencyCode}>$</span>
+                <input
+                    autoComplete="off"
+                    required
+                    className={inputClassName}
+                    {...getInputProps({id: name, type: "number", step: 0.01})}
+                />
+            </div>
         </div>
     );
 }
