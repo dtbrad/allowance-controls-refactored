@@ -1,33 +1,25 @@
 import {useField} from "remix-validated-form";
-import styles from "./TextInput.module.css";
+import styles from "./CurrencyInput.module.css";
 
-type TextInputProps = {
+type CurrencyInputProps = {
     name: string;
     label: string;
     showError: boolean;
-    type?: "text" | "password" | "hidden";
-    value?: string;
     className?: string;
 };
 
-export default function TextInput({
+export default function CurrencyInput({
     name,
     label,
     showError,
-    type = "text",
-    value,
     className
-}: TextInputProps) {
+}: CurrencyInputProps) {
     const {error, getInputProps} = useField(name);
     const hasDisplayedError = error && showError;
 
     const inputClassName = `${styles.inputField} ${
         hasDisplayedError && styles.inputFieldError
     }`;
-
-    if (type === "hidden") {
-        return <input {...getInputProps<any>({id: name, type, value})} />;
-    }
 
     return (
         <div className={className}>
@@ -37,12 +29,12 @@ export default function TextInput({
                     <div className={styles.inputErrorText}>{error}</div>
                 )}
             </label>
-
+            <span className={styles.dollarSign}>$</span>
             <input
                 autoComplete="off"
                 required
                 className={inputClassName}
-                {...getInputProps({id: name, type})}
+                {...getInputProps({id: name, type: "number", step: 0.01})}
             />
         </div>
     );

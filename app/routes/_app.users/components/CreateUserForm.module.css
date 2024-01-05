@@ -1,0 +1,31 @@
+.createUserContainer {
+    padding-top: 1rem;
+}
+
+.createUserForm {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1rem;
+}
+
+.createUserInputField {
+    width: 300px;
+}
+
+.createUserForm > * {
+    margin-bottom: 1rem;
+}
+
+.createUserTitle {
+    padding-top: 1rem;
+}
+
+.createUserButton {
+    margin-top: 1rem;
+    height: 38px;
+    min-width: 152px;
+}
+
+.createUserButton:hover {
+    cursor: pointer;
+}

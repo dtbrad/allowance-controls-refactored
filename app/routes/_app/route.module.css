@@ -25,7 +25,12 @@
 }
 
 .signOutButton {
+    width: 100px;
     border: 1px solid transparent;
     padding: 0.5rem;
-    border-radius: 0.25rem;
+    border-radius: 5px;
+}
+
+.signOutButton:hover {
+    cursor: pointer;
 }

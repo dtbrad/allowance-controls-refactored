@@ -1,7 +1,7 @@
 .button {
     border: 1px solid transparent;
     padding: 0.5rem;
-    border-radius: 0.25rem;
+    border-radius: 5px;
     color: #fff;
     background-color: #007bff;
 }

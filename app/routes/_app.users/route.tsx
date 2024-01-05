@@ -9,6 +9,7 @@ import {Role} from "~/db/dbTypes";
 import deleteUser from "~/db/deleteUser";
 import getUserSummaries from "~/db/getUserSummaries";
 import getUserFromCookie from "~/helpers-server/getUserFromCookie.server";
+import CreateUserForm from "./components/CreateUserForm";
 import UsersTable from "./components/UsersTable";
 
 export const meta: MetaFunction = () => {
@@ -27,7 +28,7 @@ export async function loader({request}: LoaderFunctionArgs) {
     return await getUserSummaries();
 }
 
-export async function action({request, params}: ActionFunctionArgs) {
+export async function action({request}: ActionFunctionArgs) {
     const user = await getUserFromCookie(request);
     const {role} = user;
 
@@ -51,6 +52,7 @@ export default function Users() {
         <>
             <h1>Users</h1>
             <UsersTable users={data} />
+            <CreateUserForm />
         </>
     );
 }
