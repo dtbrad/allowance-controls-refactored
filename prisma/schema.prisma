@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider  = "postgresql"
+    url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+    directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+enum Role {
+    ADMIN
+    STANDARD
+}
+
+enum DayofWeek {
+    SUNDAY
+    MONDAY
+    TUESDAY
+    WEDNESDAY
+    THURSDAY
+    FRIDAY
+    SATURDAY
+}
+
+model User {
+    id              String        @unique
+    createdOn       DateTime      @default(now())
+    editedLast      DateTime      @default(now())
+    role            Role          @default(STANDARD)
+    passwordDigest  String
+    allowanceAmount Int
+    allowanceDay    DayofWeek     @default(SUNDAY)
+    transactions    Transaction[]
+
+    @@map(name: "Users")
+}
+
+model Transaction {
+    id              String   @id @default(uuid())
+    userId          String
+    amount          Int
+    transactionDate DateTime @default(now())
+    createdOn       DateTime @default(now())
+    editedLast      DateTime @default(now())
+    description     String
+
+    user User @relation(fields: [userId], references: [id])
+
+    @@map(name: "Transactions")
+}

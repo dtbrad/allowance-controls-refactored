@@ -1,0 +1,28 @@
+.inputLabel {
+    padding-right: 0.5rem;
+}
+
+.inputField {
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 6px 10px;
+}
+
+.inputField:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px #8adbf4;
+}
+
+.inputFieldError {
+    border: 1px solid red;
+}
+
+.inputErrorText {
+    color: red;
+}
+
+.label {
+    display: flex;
+    justify-content: space-between;
+}
