@@ -9,11 +9,6 @@ export default function Pagination({
     totalPages: number;
 }) {
     const {location} = useNavigation();
-
-    if (totalPages <= 1) {
-        return null;
-    }
-
     const isBusy = location?.state?.pageNavigation;
 
     return (

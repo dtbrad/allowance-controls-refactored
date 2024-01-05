@@ -4,13 +4,13 @@ import {
     MetaFunction,
     redirect
 } from "@remix-run/node";
-import {useLoaderData} from "@remix-run/react";
+import {Link, Outlet, useLoaderData, useLocation} from "@remix-run/react";
 import {Role} from "~/db/dbTypes";
 import deleteUser from "~/db/deleteUser";
 import getUserSummaries from "~/db/getUserSummaries";
 import getUserFromCookie from "~/helpers-server/getUserFromCookie.server";
-import CreateUserForm from "./components/CreateUserForm";
 import UsersTable from "./components/UsersTable";
+import styles from "./route.module.css";
 
 export const meta: MetaFunction = () => {
     return [
@@ -46,13 +46,19 @@ export async function action({request}: ActionFunctionArgs) {
 }
 
 export default function Users() {
+    const location = useLocation();
     const data = useLoaderData<typeof loader>();
 
     return (
         <>
             <h1>Users</h1>
             <UsersTable users={data} />
-            <CreateUserForm />
+            {!location.pathname.includes("create") && (
+                <div className={styles.createUser}>
+                    <Link to="/users/create">Open New User Form</Link>
+                </div>
+            )}
+            <Outlet />
         </>
     );
 }
