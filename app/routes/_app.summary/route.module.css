@@ -1,0 +1,9 @@
+.summary {
+    padding: 1rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+}
