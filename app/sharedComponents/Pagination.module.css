@@ -1,0 +1,51 @@
+.pagination {
+    display: flex;
+    column-gap: 0.5rem;
+    justify-content: center;
+}
+
+.paginationArrow {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.paginationButton {
+    cursor: pointer;
+}
+
+.paginationButton:hover {
+    background-color: yellow;
+}
+
+.currentPage {
+    width: 100px;
+    display: flex;
+    justify-content: center;
+}
+
+.loadingSpinner {
+    align-self: center;
+    justify-content: center;
+    width: 0.95rem;
+    height: 0.95rem;
+    border: 2px solid #c1e5ff;
+    border-radius: 50%;
+    border-top-color: #1976d2;
+    animation: spin 700ms ease-in-out infinite;
+    -webkit-animation: spin 700ms ease-in-out infinite;
+}
+
+.loadingMessage {
+    padding-right: 0.5rem;
+}
+
+@keyframes spin {
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+@-webkit-keyframes spin {
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}

@@ -1,18 +1,20 @@
 import {LoaderFunctionArgs, redirect} from "@remix-run/node";
 import {
     Link,
+    Outlet,
     useLoaderData,
     useLocation,
     useParams,
     useSearchParams
 } from "@remix-run/react";
+import getUserFromCookie from "~/helpers-server/getUserFromCookie.server";
 import {Role} from "~/db/dbTypes";
 import getTransactions from "~/db/getTransactions";
 import getUserBalance from "~/db/getUserBalance";
-import getUserFromCookie from "~/helpers-server/getUserFromCookie.server";
-import formatCurrency from "~/helpers/formatCurrency";
 import TransactionsTable from "~/sharedComponents/TransactionsTable";
 import styles from "./route.module.css";
+import Pagination from "~/sharedComponents/Pagination";
+import formatCurrency from "~/helpers/formatCurrency";
 
 export async function loader({params, request}: LoaderFunctionArgs) {
     const {role} = await getUserFromCookie(request);
@@ -30,10 +32,13 @@ export async function loader({params, request}: LoaderFunctionArgs) {
     const pageString = new URL(request.url).searchParams.get("page");
     const pageNumber = pageString ? parseInt(pageString) : 1;
 
-    const {transactions} = await getTransactions(userId);
+    const {transactions, totalPages} = await getTransactions(
+        userId,
+        pageNumber
+    );
     const balance = await getUserBalance(userId);
 
-    return {transactions, balance};
+    return {transactions, balance, totalPages};
 }
 
 export default function UserPage() {
@@ -47,7 +52,7 @@ export default function UserPage() {
         return null;
     }
 
-    const {transactions, balance} = data;
+    const {transactions, balance, totalPages} = data;
 
     return (
         <div className={styles.summary}>
@@ -57,6 +62,10 @@ export default function UserPage() {
                 </h2>
                 <div className={styles.controls}>
                     <Link to={"/users"}>Back to Users</Link>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                    />
                 </div>
             </div>
             <TransactionsTable transactions={transactions} />
