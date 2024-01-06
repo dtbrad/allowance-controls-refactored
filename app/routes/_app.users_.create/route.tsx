@@ -86,8 +86,7 @@ export default function CreateUserForm() {
             ["id", "password", "amount", "dayPreference"].map((field) => [
                 field + "Error",
                 (attemptedSubmit && clientValidationErrors?.[field]) ||
-                    fetcher?.data?.fieldErrors?.[field] ||
-                    actionData?.fieldErrors[field]
+                    fetcher?.data?.fieldErrors?.[field]
             ])
         );
 
@@ -97,6 +96,11 @@ export default function CreateUserForm() {
                 <Link to="/users">Close New User Form</Link>
             </div>
             <h2 className={styles.createUserTitle}>Create a User</h2>
+            {actionData?.fieldErrors && (
+                <p className={styles.errorText}>
+                    Server Validation: Looks like you missed some form fields.
+                </p>
+            )}
             <Form
                 className={styles.createUserForm}
                 ref={formRef}
