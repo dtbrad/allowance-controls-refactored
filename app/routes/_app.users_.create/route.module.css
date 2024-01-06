@@ -29,3 +29,28 @@
 .createUserButton:hover {
     cursor: pointer;
 }
+
+.label {
+    display: flex;
+    justify-content: space-between;
+}
+
+.errorText {
+    color: red;
+}
+
+.inputField {
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 6px 10px;
+}
+
+.inputFieldError {
+    border: 1px solid red;
+}
+
+.submitButton {
+    margin-top: 1.5rem;
+    height: 38px;
+    width: 100px;
+}
