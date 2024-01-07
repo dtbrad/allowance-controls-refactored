@@ -1,49 +1,43 @@
-import {useField} from "remix-validated-form";
-import styles from "./TextInput.module.css";
+import styles from "./TextInputGroup.module.css";
+import {Ref, forwardRef} from "react";
 
 type TextInputProps = {
     name: string;
     label: string;
-    showError: boolean;
+    error?: string;
     type?: "text" | "password" | "hidden";
-    value?: string;
     className?: string;
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-export default function TextInput({
-    name,
-    label,
-    showError,
-    type = "text",
-    value,
-    className
-}: TextInputProps) {
-    const {error, getInputProps} = useField(name);
-    const hasDisplayedError = error && showError;
-
+function TextInputGroup(
+    {name, label, error, type = "text", className, onChange}: TextInputProps,
+    ref: Ref<HTMLInputElement>
+) {
     const inputClassName = `${styles.inputField} ${
-        hasDisplayedError && styles.inputFieldError
+        !!error && styles.inputFieldError
     }`;
-
-    if (type === "hidden") {
-        return <input {...getInputProps<any>({id: name, type, value})} />;
-    }
 
     return (
         <div className={className}>
             <label htmlFor={name} className={styles.label}>
                 <div className={styles.inputLabel}>{label}</div>
-                {hasDisplayedError && (
+                {!!error && (
                     <div className={styles.inputErrorText}>{error}</div>
                 )}
             </label>
 
             <input
+                ref={ref}
                 autoComplete="off"
                 required
                 className={inputClassName}
-                {...getInputProps({id: name, type})}
+                onChange={onChange}
+                name={name}
+                type={type}
             />
         </div>
     );
 }
+
+export default forwardRef(TextInputGroup);

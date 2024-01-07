@@ -1,15 +1,15 @@
 import {ActionFunctionArgs, redirect} from "@remix-run/node";
 import {Form, Link, useActionData, useFetcher} from "@remix-run/react";
 import {withZod} from "@remix-validated-form/with-zod";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {validationError} from "remix-validated-form";
 import {z} from "zod";
 import createUser from "~/db/createUser";
 import {DayofWeek, Role} from "~/db/dbTypes";
-import CurrencyInputGroup from "~/formComponents/MyCurrencyInput";
-import SelectInputGroup from "~/formComponents/MySelectDropdown";
-import SubmitButton from "~/formComponents/MySubmitButton";
-import TextInputGroup from "~/formComponents/MyTextInput";
+import CurrencyInputGroup from "~/formControls/CurrencyInputGroup";
+import SelectInputGroup from "~/formControls/SelectInputGroup";
+import SubmitButton from "~/formControls/SubmitButton";
+import TextInputGroup from "~/formControls/TextInputGroup";
 import getUserFromCookie from "~/helpers-server/getUserFromCookie.server";
 import styles from "./route.module.css";
 
@@ -52,11 +52,16 @@ export async function action({request}: ActionFunctionArgs) {
 export default function CreateUserForm() {
     const [attemptedSubmit, setAttemptedSubmit] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
+    const idRef = useRef<HTMLInputElement>(null);
     const actionData = useActionData<typeof action>();
     const fetcher = useFetcher<any>();
     const [clientValidationErrors, setClientValidationErrors] = useState<any>(
         {}
     );
+
+    useEffect(function () {
+        idRef.current!.focus();
+    }, []);
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -113,6 +118,7 @@ export default function CreateUserForm() {
                     label="name"
                     error={idError}
                     onChange={validateForm}
+                    ref={idRef}
                 />
                 <TextInputGroup
                     name="password"

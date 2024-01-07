@@ -1,6 +1,7 @@
 import {LoaderFunctionArgs, redirect} from "@remix-run/node";
 import {
     Link,
+    Outlet,
     useLoaderData,
     useLocation,
     useParams,
@@ -13,7 +14,6 @@ import getUserFromCookie from "~/helpers-server/getUserFromCookie.server";
 import formatCurrency from "~/helpers/formatCurrency";
 import Pagination from "~/sharedComponents/Pagination";
 import TransactionsTable from "~/sharedComponents/TransactionsTable";
-import AddTransactionForm from "./AddTransactionForm";
 import styles from "./route.module.css";
 
 export async function loader({params, request}: LoaderFunctionArgs) {
@@ -69,7 +69,14 @@ export default function UserPage() {
                 </div>
             </div>
             <TransactionsTable transactions={transactions} />
-            <AddTransactionForm />
+            {!location.pathname.includes("add-transaction") && (
+                <div className={styles.addTransactionLink}>
+                    <Link to={`/users/${userId}/add-transaction`}>
+                        Open Add Transaction Form
+                    </Link>
+                </div>
+            )}
+            <Outlet />
         </div>
     );
 }

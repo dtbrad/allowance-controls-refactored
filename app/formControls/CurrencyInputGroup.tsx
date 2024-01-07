@@ -1,31 +1,29 @@
-import {useField} from "remix-validated-form";
-import styles from "./CurrencyInput.module.css";
+import styles from "./CurrencyInputGroup.module.css";
 
 type CurrencyInputProps = {
     name: string;
     label: string;
-    showError: boolean;
+    error?: string;
     className?: string;
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-export default function CurrencyInput({
+export default function CurrencyInputGroup({
     name,
     label,
-    showError,
-    className
+    error,
+    className,
+    onChange
 }: CurrencyInputProps) {
-    const {error, getInputProps} = useField(name);
-    const hasDisplayedError = error && showError;
-
     const inputClassName = `${styles.inputField} ${
-        hasDisplayedError && styles.inputFieldError
+        !!error && styles.inputFieldError
     }`;
 
     return (
         <div className={className}>
             <label htmlFor={name} className={styles.label}>
                 <div className={styles.inputLabel}>{label}</div>
-                {hasDisplayedError && (
+                {!!error && (
                     <div className={styles.inputErrorText}>{error}</div>
                 )}
             </label>
@@ -35,7 +33,10 @@ export default function CurrencyInput({
                     autoComplete="off"
                     required
                     className={inputClassName}
-                    {...getInputProps({id: name, type: "number", step: 0.01})}
+                    onChange={onChange}
+                    name={name}
+                    type="number"
+                    step="0.01"
                 />
             </div>
         </div>

@@ -7,7 +7,7 @@ export interface ButtonProps {
     loadingMessage: string;
 }
 
-export default function MySubmitButton({
+export default function SubmitButton({
     className,
     loading,
     loadingMessage,

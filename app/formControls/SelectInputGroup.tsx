@@ -1,4 +1,4 @@
-import styles from "./SelectDropdown.module.css";
+import styles from "./SelectInputGroup.module.css";
 
 export interface SelectProps {
     options: {name: string; value: any}[];
@@ -9,7 +9,7 @@ export interface SelectProps {
     onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
-export default function MySelectDropdown({
+export default function SelectInputGroup({
     options,
     name,
     label,
