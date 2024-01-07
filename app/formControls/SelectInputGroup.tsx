@@ -7,6 +7,7 @@ export interface SelectProps {
     error?: string;
     className?: string;
     onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+    defaultValue?: string;
 }
 
 export default function SelectInputGroup({
@@ -15,7 +16,8 @@ export default function SelectInputGroup({
     label,
     error,
     onChange,
-    className
+    className,
+    defaultValue
 }: SelectProps) {
     const inputClassName = `${styles.inputField} ${
         !!error && styles.inputFieldError
@@ -33,7 +35,7 @@ export default function SelectInputGroup({
             <select
                 className={inputClassName}
                 required
-                defaultValue=""
+                defaultValue={defaultValue || ""}
                 name={name}
                 onChange={onChange}
             >

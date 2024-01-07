@@ -1,8 +1,7 @@
-import {ActionFunctionArgs, redirect} from "@remix-run/node";
+import {ActionFunctionArgs, json, redirect} from "@remix-run/node";
 import {Form, Link, useActionData, useFetcher} from "@remix-run/react";
 import {withZod} from "@remix-validated-form/with-zod";
 import {useEffect, useRef, useState} from "react";
-import {validationError} from "remix-validated-form";
 import {z} from "zod";
 import createUser from "~/db/createUser";
 import {DayofWeek, Role} from "~/db/dbTypes";
@@ -39,7 +38,7 @@ export async function action({request}: ActionFunctionArgs) {
     const result = await validator.validate(await request.formData());
 
     if (result.error) {
-        return validationError(result.error);
+        return json({result, status: 400});
     }
 
     const {id, password, amount, dayPreference} = result.data;
@@ -53,7 +52,8 @@ export default function CreateUserForm() {
     const [attemptedSubmit, setAttemptedSubmit] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
     const idRef = useRef<HTMLInputElement>(null);
-    const actionData = useActionData<typeof action>();
+    // TODO: implement proper type narrowing to handle actionData union type when using `<typeof action>` instead of `<any>`
+    const actionData = useActionData<any>();
     const fetcher = useFetcher<any>();
     const [clientValidationErrors, setClientValidationErrors] = useState<any>(
         {}
@@ -91,7 +91,8 @@ export default function CreateUserForm() {
             ["id", "password", "amount", "dayPreference"].map((field) => [
                 field + "Error",
                 (attemptedSubmit && clientValidationErrors?.[field]) ||
-                    fetcher?.data?.fieldErrors?.[field]
+                    fetcher?.data?.fieldErrors?.[field] ||
+                    actionData?.result?.error?.fieldErrors?.[field]
             ])
         );
 
@@ -101,11 +102,6 @@ export default function CreateUserForm() {
                 <Link to="/users">Close New User Form</Link>
             </div>
             <h2 className={styles.createUserTitle}>Create a User</h2>
-            {actionData?.fieldErrors && (
-                <p className={styles.errorText}>
-                    Server Validation: Looks like you missed some form fields.
-                </p>
-            )}
             <Form
                 className={styles.createUserForm}
                 ref={formRef}
@@ -119,6 +115,7 @@ export default function CreateUserForm() {
                     error={idError}
                     onChange={validateForm}
                     ref={idRef}
+                    defaultValue={actionData?.result?.submittedData?.id}
                 />
                 <TextInputGroup
                     name="password"
@@ -126,12 +123,14 @@ export default function CreateUserForm() {
                     label="password"
                     error={passwordError}
                     onChange={validateForm}
+                    defaultValue={actionData?.result?.submittedData?.password}
                 />
                 <CurrencyInputGroup
                     name="amount"
                     label="amount"
                     error={amountError}
                     onChange={validateForm}
+                    defaultValue={actionData?.result?.submittedData?.amount}
                 />
                 <SelectInputGroup
                     name="dayPreference"
@@ -142,6 +141,9 @@ export default function CreateUserForm() {
                         value: day
                     }))}
                     onChange={validateForm}
+                    defaultValue={
+                        actionData?.result?.submittedData?.dayPreference
+                    }
                 />
                 <SubmitButton
                     className={styles.submitButton}

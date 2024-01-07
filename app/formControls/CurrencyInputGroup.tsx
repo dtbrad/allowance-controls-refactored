@@ -6,6 +6,7 @@ type CurrencyInputProps = {
     error?: string;
     className?: string;
     onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    defaultValue?: string;
 };
 
 export default function CurrencyInputGroup({
@@ -13,7 +14,8 @@ export default function CurrencyInputGroup({
     label,
     error,
     className,
-    onChange
+    onChange,
+    defaultValue
 }: CurrencyInputProps) {
     const inputClassName = `${styles.inputField} ${
         !!error && styles.inputFieldError
@@ -37,6 +39,7 @@ export default function CurrencyInputGroup({
                     name={name}
                     type="number"
                     step="0.01"
+                    defaultValue={defaultValue}
                 />
             </div>
         </div>
