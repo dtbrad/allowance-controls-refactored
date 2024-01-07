@@ -1,5 +1,11 @@
-import {ActionFunctionArgs, redirect} from "@remix-run/node";
-import {Form, Link, useFetcher, useParams} from "@remix-run/react";
+import {ActionFunctionArgs, json, redirect} from "@remix-run/node";
+import {
+    Form,
+    Link,
+    useActionData,
+    useFetcher,
+    useParams
+} from "@remix-run/react";
 import {withZod} from "@remix-validated-form/with-zod";
 import {useEffect, useRef, useState} from "react";
 import {validationError} from "remix-validated-form";
@@ -35,7 +41,7 @@ export async function action({request, params}: ActionFunctionArgs) {
     const result = await validator.validate(await request.formData());
 
     if (result.error) {
-        return validationError(result.error);
+        return json({result, status: 400});
     }
 
     const {amount, description} = result.data;
@@ -54,6 +60,7 @@ export default function AddTransactionForm() {
     const [clientValidationErrors, setClientValidationErrors] = useState<any>(
         {}
     );
+    const actionData = useActionData<typeof action>();
 
     useEffect(function () {
         descriptionRef.current!.focus();
@@ -86,7 +93,8 @@ export default function AddTransactionForm() {
         ["amount", "description"].map((field) => [
             field + "Error",
             (attemptedSubmit && clientValidationErrors?.[field]) ||
-                fetcher?.data?.fieldErrors?.[field]
+                fetcher?.data?.fieldErrors?.[field] ||
+                actionData?.result?.error?.fieldErrors?.[field]
         ])
     );
 
@@ -108,12 +116,16 @@ export default function AddTransactionForm() {
                     error={descriptionError}
                     onChange={validateForm}
                     ref={descriptionRef}
+                    defaultValue={
+                        actionData?.result?.submittedData?.description
+                    }
                 />
                 <CurrencyInputGroup
                     name="amount"
                     label="Amount"
                     error={amountError}
                     onChange={validateForm}
+                    defaultValue={actionData?.result?.submittedData?.amount}
                 />
                 <SubmitButton
                     className={styles.submitButton}

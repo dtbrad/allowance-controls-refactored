@@ -52,9 +52,8 @@ export default function CreateUserForm() {
     const [attemptedSubmit, setAttemptedSubmit] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
     const idRef = useRef<HTMLInputElement>(null);
-    // TODO: implement proper type narrowing to handle actionData union type when using `<typeof action>` instead of `<any>`
-    const actionData = useActionData<any>();
-    const fetcher = useFetcher<any>();
+    const actionData = useActionData<typeof action>();
+    const fetcher = useFetcher<typeof action>();
     const [clientValidationErrors, setClientValidationErrors] = useState<any>(
         {}
     );
@@ -91,7 +90,7 @@ export default function CreateUserForm() {
             ["id", "password", "amount", "dayPreference"].map((field) => [
                 field + "Error",
                 (attemptedSubmit && clientValidationErrors?.[field]) ||
-                    fetcher?.data?.fieldErrors?.[field] ||
+                    fetcher?.data?.result?.error?.fieldErrors?.[field] ||
                     actionData?.result?.error?.fieldErrors?.[field]
             ])
         );

@@ -77,6 +77,8 @@ export default function SigninForm() {
     const formRef = useRef<HTMLFormElement>(null);
     const idRef = useRef<HTMLInputElement>(null);
     // TODO: implement proper type narrowing to handle actionData union type when using `<typeof action>` instead of `<any>`
+    // Union type arises from action returning both validation errors and invalid credentials error
+    // Note this will become an issue when introducing error handling in the other forms
     const actionData = useActionData<any>();
     const fetcher = useFetcher<any>();
     const [clientValidationErrors, setClientValidationErrors] = useState<
