@@ -8,10 +8,19 @@ type TextInputProps = {
     type?: "text" | "password" | "hidden";
     className?: string;
     onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    defaultValue?: string;
 };
 
 function TextInputGroup(
-    {name, label, error, type = "text", className, onChange}: TextInputProps,
+    {
+        name,
+        label,
+        error,
+        type = "text",
+        className,
+        onChange,
+        defaultValue
+    }: TextInputProps,
     ref: Ref<HTMLInputElement>
 ) {
     const inputClassName = `${styles.inputField} ${
@@ -35,6 +44,7 @@ function TextInputGroup(
                 onChange={onChange}
                 name={name}
                 type={type}
+                defaultValue={defaultValue}
             />
         </div>
     );

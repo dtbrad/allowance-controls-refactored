@@ -7,7 +7,7 @@ import {
 import {Form, useActionData, useFetcher} from "@remix-run/react";
 import {withZod} from "@remix-validated-form/with-zod";
 import {useEffect, useRef, useState} from "react";
-import {validationError} from "remix-validated-form";
+import {FieldErrors} from "remix-validated-form";
 import {z} from "zod";
 import {Role} from "~/db/dbTypes";
 import getUser from "~/db/getUser";
@@ -25,7 +25,7 @@ export const meta: MetaFunction = () => {
 };
 
 const schema = z.object({
-    id: z.string().min(1, {message: "First name is required"}),
+    id: z.string().min(1, {message: "Name is required"}),
     password: z.string().min(1, {message: "Password is required"})
 });
 
@@ -36,7 +36,7 @@ export async function action({request}: ActionFunctionArgs) {
     const result = await validator.validate(formData);
 
     if (result.error) {
-        return validationError(result.error);
+        return json({result, status: 400});
     }
 
     const {id, password} = result.data;
@@ -76,11 +76,12 @@ export default function SigninForm() {
     const [attemptedSubmit, setAttemptedSubmit] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
     const idRef = useRef<HTMLInputElement>(null);
-    const actionData = useActionData<typeof action>();
+    // TODO: implement proper type narrowing to handle actionData union type when using `<typeof action>` instead of `<any>`
+    const actionData = useActionData<any>();
     const fetcher = useFetcher<any>();
-    const [clientValidationErrors, setClientValidationErrors] = useState<any>(
-        {}
-    );
+    const [clientValidationErrors, setClientValidationErrors] = useState<
+        FieldErrors | undefined
+    >({});
 
     useEffect(function () {
         idRef.current!.focus();
@@ -109,32 +110,22 @@ export default function SigninForm() {
         setClientValidationErrors(validationResults?.error?.fieldErrors);
     }
 
-    const actionDataObject = actionData as any;
-
     const {idError, passwordError} = Object.fromEntries(
         ["id", "password"].map(function (field) {
             return [
                 field + "Error",
                 (attemptedSubmit && clientValidationErrors?.[field]) ||
-                    fetcher?.data?.fieldErrors?.[field]
+                    fetcher?.data?.fieldErrors?.[field] ||
+                    actionData?.result?.error?.fieldErrors?.[field]
             ];
         })
     );
 
-    const invalidCredentialsError =
-        fetcher?.data?.error || actionDataObject?.error;
-
-    const degradedServerValidationError =
-        actionDataObject?.fieldErrors &&
-        "Server Validation: Looks like you missed some form fields.";
+    const invalidCredentialsError = fetcher?.data?.error || actionData?.error;
 
     return (
         <div className={styles.signinPage}>
-            <ErrorMessage
-                message={
-                    invalidCredentialsError || degradedServerValidationError
-                }
-            />
+            <ErrorMessage message={invalidCredentialsError} />
             <Form
                 className={styles.signinCard}
                 ref={formRef}
@@ -149,6 +140,7 @@ export default function SigninForm() {
                     error={idError}
                     onChange={validateForm}
                     ref={idRef}
+                    defaultValue={actionData?.result?.submittedData?.id}
                 />
                 <TextInputGroup
                     name="password"
@@ -156,6 +148,7 @@ export default function SigninForm() {
                     type="password"
                     error={passwordError}
                     onChange={validateForm}
+                    defaultValue={actionData?.result?.submittedData?.password}
                 />
                 <SubmitButton
                     className={styles.signInButton}

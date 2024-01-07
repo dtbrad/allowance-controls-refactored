@@ -43,7 +43,11 @@ export default function Summary() {
                 <p>Balance: {formatCurrency(balance)}</p>
                 <Pagination currentPage={currentPage} totalPages={totalPages} />
             </div>
-            <TransactionsTable transactions={transactions} />
+            {transactions.length ? (
+                <TransactionsTable transactions={transactions} />
+            ) : (
+                <p>No Transactions yet</p>
+            )}
         </div>
     );
 }
