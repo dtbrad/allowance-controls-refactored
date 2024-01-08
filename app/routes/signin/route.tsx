@@ -66,12 +66,6 @@ export async function action({request}: ActionFunctionArgs) {
     });
 }
 
-function ErrorMessage({message}: {message?: string}) {
-    const content = message;
-
-    return <div className={styles.errorMessage}>{content}</div>;
-}
-
 export default function SigninForm() {
     const [attemptedSubmit, setAttemptedSubmit] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
@@ -127,7 +121,7 @@ export default function SigninForm() {
 
     return (
         <div className={styles.signinPage}>
-            <ErrorMessage message={invalidCredentialsError} />
+            <div className={styles.errorMessage}>{invalidCredentialsError}</div>
             <Form
                 className={styles.signinCard}
                 ref={formRef}
