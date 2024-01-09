@@ -4,15 +4,9 @@ import {
     type ActionFunctionArgs,
     type MetaFunction
 } from "@remix-run/node";
-import {
-    FetcherWithComponents,
-    Form,
-    useActionData,
-    useFetcher
-} from "@remix-run/react";
+import {useActionData, useFetcher} from "@remix-run/react";
 import {withZod} from "@remix-validated-form/with-zod";
-import {RefObject, useEffect, useRef, useState} from "react";
-import {FieldErrors} from "remix-validated-form";
+import {useEffect, useRef} from "react";
 import {z} from "zod";
 import {Role} from "~/db/dbTypes";
 import getUser from "~/db/getUser";
@@ -20,6 +14,7 @@ import SubmitButton from "~/formControls/SubmitButton";
 import TextInputGroup from "~/formControls/TextInputGroup";
 import authCookie from "~/helpers-server/authCookie.server";
 import hashPassword from "~/helpers-server/hashPassword.server";
+import useFormManager from "~/helpers/useFormManager";
 import styles from "./route.module.css";
 
 export const meta: MetaFunction = () => {
@@ -34,11 +29,17 @@ const schema = z.object({
     password: z.string().min(1, {message: "Password is required"})
 });
 
+const serverSchema = z.object({
+    id: z.string().min(7, {message: "Server: 3 chars for user required"}),
+    password: z.string().min(1, {message: "Password is required"})
+});
+
 const validator = withZod(schema);
+const serverValidator = withZod(serverSchema);
 
 export async function action({request}: ActionFunctionArgs) {
     const formData = await request.formData();
-    const result = await validator.validate(formData);
+    const result = await serverValidator.validate(formData);
 
     if (result.error) {
         return json({result, status: 400});
@@ -71,29 +72,7 @@ export async function action({request}: ActionFunctionArgs) {
     });
 }
 
-function useFormManager(
-    fetcher: FetcherWithComponents<any>,
-    actionData: any,
-    formRef: RefObject<HTMLFormElement>
-) {
-    const isLoading = fetcher.state !== "idle";
-    const serverError = fetcher?.data?.error; // requires js be enabled
-    const htmlServerError = actionData?.error; // requires js be disabled
-
-    async function validate() {
-        const formData = new FormData(formRef.current!);
-        const validationResults = await validator.validate(formData);
-
-        setValidationErrors(validationResults.error?.fieldErrors);
-    }
-
-    return {
-        isLoading,
-        serverError: serverError || htmlServerError
-    };
-}
-
-export default function SigninForm() {
+export default function SigninAltForm() {
     const formRef = useRef<HTMLFormElement>(null);
     const idRef = useRef<HTMLInputElement>(null);
     // TODO: implement proper type narrowing to handle actionData union type when using `<typeof action>` instead of `<any>`
@@ -101,7 +80,14 @@ export default function SigninForm() {
     // Note this will become an issue when introducing error handling in the other forms
     const fetcher = useFetcher<any>();
     const actionData = useActionData<any>();
-    const {isLoading, serverError} = useFormManager(fetcher, actionData);
+    const {
+        isLoading,
+        serverError,
+        validationErrors,
+        htmlServerFormValues,
+        performClientSideFormValidation,
+        submitIfValid
+    } = useFormManager(fetcher, actionData, formRef, validator);
 
     useEffect(function () {
         idRef.current!.focus();
@@ -113,7 +99,7 @@ export default function SigninForm() {
             <fetcher.Form
                 className={styles.signinCard}
                 ref={formRef}
-                // onSubmit={handleSubmit}
+                onSubmit={submitIfValid}
                 method="post"
                 noValidate
             >
@@ -121,18 +107,18 @@ export default function SigninForm() {
                 <TextInputGroup
                     name="id"
                     label="name"
-                    // error={idError}
-                    // onChange={validateForm}
+                    error={validationErrors?.id}
+                    onChange={performClientSideFormValidation}
                     ref={idRef}
-                    defaultValue={actionData?.result?.submittedData?.id}
+                    defaultValue={htmlServerFormValues?.id}
                 />
                 <TextInputGroup
                     name="password"
                     label="password"
                     type="password"
-                    // error={passwordError}
-                    // onChange={validateForm}
-                    defaultValue={actionData?.result?.submittedData?.password}
+                    error={validationErrors?.password}
+                    onChange={performClientSideFormValidation}
+                    defaultValue={htmlServerFormValues?.password}
                 />
                 <SubmitButton
                     className={styles.signInButton}
