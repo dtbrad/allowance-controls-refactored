@@ -11,6 +11,7 @@ import SubmitButton from "~/formControls/SubmitButton";
 import TextInputGroup from "~/formControls/TextInputGroup";
 import getUserFromCookie from "~/helpers-server/getUserFromCookie.server";
 import styles from "./route.module.css";
+import useFormManager from "~/helpers/useFormManager";
 
 export const newUserSchema = z.object({
     id: z.string().min(1, {message: "Required!"}),
@@ -49,51 +50,22 @@ export async function action({request}: ActionFunctionArgs) {
 }
 
 export default function CreateUserForm() {
-    const [attemptedSubmit, setAttemptedSubmit] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
     const idRef = useRef<HTMLInputElement>(null);
     const actionData = useActionData<typeof action>();
     const fetcher = useFetcher<typeof action>();
-    const [clientValidationErrors, setClientValidationErrors] = useState<any>(
-        {}
-    );
+    const {
+        isLoading,
+        serverError,
+        validationErrors,
+        htmlServerFormValues,
+        performClientSideFormValidation,
+        submitIfValid
+    } = useFormManager(fetcher, actionData, formRef, validator);
 
     useEffect(function () {
         idRef.current!.focus();
     }, []);
-
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        setAttemptedSubmit(true);
-
-        const formData = new FormData(event.currentTarget);
-        const validationResults = await validator.validate(formData);
-
-        if (validationResults.error) {
-            return setClientValidationErrors(
-                validationResults.error.fieldErrors
-            );
-        }
-
-        fetcher.submit(formData, {method: "post"});
-    }
-
-    async function validateForm() {
-        const formData = new FormData(formRef.current!);
-        const validationResults = await validator.validate(formData);
-
-        setClientValidationErrors(validationResults?.error?.fieldErrors);
-    }
-
-    const {idError, passwordError, amountError, dayPreferenceError} =
-        Object.fromEntries(
-            ["id", "password", "amount", "dayPreference"].map((field) => [
-                field + "Error",
-                (attemptedSubmit && clientValidationErrors?.[field]) ||
-                    fetcher?.data?.result?.error?.fieldErrors?.[field] ||
-                    actionData?.result?.error?.fieldErrors?.[field]
-            ])
-        );
 
     return (
         <div className={styles.createUserContainer}>
@@ -104,49 +76,47 @@ export default function CreateUserForm() {
             <Form
                 className={styles.createUserForm}
                 ref={formRef}
-                onSubmit={handleSubmit}
+                onSubmit={submitIfValid}
                 method="post"
                 noValidate
             >
                 <TextInputGroup
                     name="id"
                     label="name"
-                    error={idError}
-                    onChange={validateForm}
+                    error={validationErrors?.id}
+                    onChange={performClientSideFormValidation}
                     ref={idRef}
-                    defaultValue={actionData?.result?.submittedData?.id}
+                    defaultValue={htmlServerFormValues?.id}
                 />
                 <TextInputGroup
                     name="password"
                     type="password"
                     label="password"
-                    error={passwordError}
-                    onChange={validateForm}
-                    defaultValue={actionData?.result?.submittedData?.password}
+                    error={validationErrors?.password}
+                    onChange={performClientSideFormValidation}
+                    defaultValue={htmlServerFormValues?.password}
                 />
                 <CurrencyInputGroup
                     name="amount"
                     label="amount"
-                    error={amountError}
-                    onChange={validateForm}
-                    defaultValue={actionData?.result?.submittedData?.amount}
+                    error={validationErrors?.amount}
+                    onChange={performClientSideFormValidation}
+                    defaultValue={htmlServerFormValues?.amount}
                 />
                 <SelectInputGroup
                     name="dayPreference"
                     label="Day Preference"
-                    error={dayPreferenceError}
+                    error={validationErrors?.dayPreference}
                     options={Object.keys(DayofWeek).map((day) => ({
                         name: day,
                         value: day
                     }))}
-                    onChange={validateForm}
-                    defaultValue={
-                        actionData?.result?.submittedData?.dayPreference
-                    }
+                    onChange={performClientSideFormValidation}
+                    defaultValue={htmlServerFormValues?.dayPreference}
                 />
                 <SubmitButton
                     className={styles.submitButton}
-                    loading={fetcher.state !== "idle"}
+                    loading={isLoading}
                     loadingMessage="Saving..."
                     message="Save"
                 />
