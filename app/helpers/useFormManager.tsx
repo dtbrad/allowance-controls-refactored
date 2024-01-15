@@ -11,7 +11,8 @@ export default function useFormManager(
     const [clientSideValidationErrors, setClientSideValidationErrors] =
         useState<any>();
     const [attemptedSubmit, setAttemptedSubmit] = useState(false);
-    const isLoading = fetcher.state === "submitting";
+    const isLoading =
+        fetcher.state === "submitting" || fetcher.state === "loading";
 
     const serverError = fetcher?.data?.error; // requires js be enabled
     const htmlServerError = actionData?.error; // requires js be disabled

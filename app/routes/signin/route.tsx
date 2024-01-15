@@ -4,10 +4,9 @@ import {
     type ActionFunctionArgs,
     type MetaFunction
 } from "@remix-run/node";
-import {Form, useActionData, useFetcher} from "@remix-run/react";
+import {useActionData, useFetcher} from "@remix-run/react";
 import {withZod} from "@remix-validated-form/with-zod";
-import {useEffect, useRef, useState} from "react";
-import {FieldErrors} from "remix-validated-form";
+import {useEffect, useRef} from "react";
 import {z} from "zod";
 import {Role} from "~/db/dbTypes";
 import getUser from "~/db/getUser";
@@ -15,6 +14,7 @@ import SubmitButton from "~/formControls/SubmitButton";
 import TextInputGroup from "~/formControls/TextInputGroup";
 import authCookie from "~/helpers-server/authCookie.server";
 import hashPassword from "~/helpers-server/hashPassword.server";
+import useFormManager from "~/helpers/useFormManager";
 import styles from "./route.module.css";
 
 export const meta: MetaFunction = () => {
@@ -66,66 +66,34 @@ export async function action({request}: ActionFunctionArgs) {
     });
 }
 
-export default function SigninForm() {
-    const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+export default function SigninAltForm() {
     const formRef = useRef<HTMLFormElement>(null);
     const idRef = useRef<HTMLInputElement>(null);
     // TODO: implement proper type narrowing to handle actionData union type when using `<typeof action>` instead of `<any>`
     // Union type arises from action returning both validation errors and invalid credentials error
     // Note this will become an issue when introducing error handling in the other forms
-    const actionData = useActionData<any>();
     const fetcher = useFetcher<any>();
-    const [clientValidationErrors, setClientValidationErrors] = useState<
-        FieldErrors | undefined
-    >({});
+    const actionData = useActionData<any>();
+    const {
+        isLoading,
+        serverError,
+        validationErrors,
+        htmlServerFormValues,
+        performClientSideFormValidation,
+        submitIfValid
+    } = useFormManager(fetcher, actionData, formRef, validator);
 
     useEffect(function () {
         idRef.current!.focus();
     }, []);
 
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        setAttemptedSubmit(true);
-
-        const formData = new FormData(event.currentTarget);
-        const validationResults = await validator.validate(formData);
-
-        if (validationResults.error) {
-            return setClientValidationErrors(
-                validationResults.error.fieldErrors
-            );
-        }
-
-        fetcher.submit(formData, {method: "post"});
-    }
-
-    async function validateForm() {
-        const formData = new FormData(formRef.current!);
-        const validationResults = await validator.validate(formData);
-
-        setClientValidationErrors(validationResults?.error?.fieldErrors);
-    }
-
-    const {idError, passwordError} = Object.fromEntries(
-        ["id", "password"].map(function (field) {
-            return [
-                field + "Error",
-                (attemptedSubmit && clientValidationErrors?.[field]) ||
-                    fetcher?.data?.fieldErrors?.[field] ||
-                    actionData?.result?.error?.fieldErrors?.[field]
-            ];
-        })
-    );
-
-    const invalidCredentialsError = fetcher?.data?.error || actionData?.error;
-
     return (
         <div className={styles.signinPage}>
-            <div className={styles.errorMessage}>{invalidCredentialsError}</div>
-            <Form
+            <div className={styles.errorMessage}>{serverError}</div>
+            <fetcher.Form
                 className={styles.signinCard}
                 ref={formRef}
-                onSubmit={handleSubmit}
+                onSubmit={submitIfValid}
                 method="post"
                 noValidate
             >
@@ -133,26 +101,26 @@ export default function SigninForm() {
                 <TextInputGroup
                     name="id"
                     label="name"
-                    error={idError}
-                    onChange={validateForm}
+                    error={validationErrors?.id}
+                    onChange={performClientSideFormValidation}
                     ref={idRef}
-                    defaultValue={actionData?.result?.submittedData?.id}
+                    defaultValue={htmlServerFormValues?.id}
                 />
                 <TextInputGroup
                     name="password"
                     label="password"
                     type="password"
-                    error={passwordError}
-                    onChange={validateForm}
-                    defaultValue={actionData?.result?.submittedData?.password}
+                    error={validationErrors?.password}
+                    onChange={performClientSideFormValidation}
+                    defaultValue={htmlServerFormValues?.password}
                 />
                 <SubmitButton
                     className={styles.signInButton}
-                    loading={fetcher.state !== "idle"}
+                    loading={isLoading}
                     loadingMessage="Signing In..."
                     message="Sign In"
                 />
-            </Form>
+            </fetcher.Form>
         </div>
     );
 }

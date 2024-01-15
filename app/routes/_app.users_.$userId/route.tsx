@@ -1,4 +1,4 @@
-import {LoaderFunctionArgs, redirect} from "@remix-run/node";
+import {LoaderFunctionArgs, MetaFunction, redirect} from "@remix-run/node";
 import {
     Link,
     Outlet,
@@ -15,6 +15,13 @@ import formatCurrency from "~/helpers/formatCurrency";
 import Pagination from "~/sharedComponents/Pagination";
 import TransactionsTable from "~/sharedComponents/TransactionsTable";
 import styles from "./route.module.css";
+
+export const meta: MetaFunction = () => {
+    return [
+        {title: "Family Allowance User Summary"},
+        {name: "description", content: "Family Allowance User Summary Page"}
+    ];
+};
 
 export async function loader({params, request}: LoaderFunctionArgs) {
     const {role} = await getUserFromCookie(request);

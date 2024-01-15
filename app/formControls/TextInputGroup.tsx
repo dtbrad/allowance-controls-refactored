@@ -43,6 +43,7 @@ function TextInputGroup(
                 className={inputClassName}
                 onChange={onChange}
                 name={name}
+                id={name}
                 type={type}
                 defaultValue={defaultValue}
             />
