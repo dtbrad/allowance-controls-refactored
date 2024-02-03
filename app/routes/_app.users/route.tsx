@@ -4,7 +4,13 @@ import {
     MetaFunction,
     redirect
 } from "@remix-run/node";
-import {Link, Outlet, useLoaderData, useLocation} from "@remix-run/react";
+import {
+    ClientLoaderFunctionArgs,
+    Link,
+    Outlet,
+    useLoaderData,
+    useLocation
+} from "@remix-run/react";
 import {Role} from "~/db/dbTypes";
 import deleteUser from "~/db/deleteUser";
 import getUserSummaries from "~/db/getUserSummaries";
@@ -18,6 +24,29 @@ export const meta: MetaFunction = () => {
         {name: "description", content: "Family Allowance Users Page"}
     ];
 };
+
+let cache: any;
+
+export async function clientLoader({
+    request,
+    serverLoader
+}: ClientLoaderFunctionArgs) {
+    const revalidateUsers = new URL(request.url).searchParams.get(
+        "revalidate-users"
+    );
+
+    if (revalidateUsers || !cache) {
+        let loaderData = await serverLoader();
+
+        cache = loaderData;
+
+        return loaderData;
+    }
+
+    return cache;
+}
+
+clientLoader.hydrate = true;
 
 export async function loader({request}: LoaderFunctionArgs) {
     const {role} = await getUserFromCookie(request);
@@ -42,7 +71,7 @@ export async function action({request}: ActionFunctionArgs) {
 
     await deleteUser(String(userIdForDeletion));
 
-    return {message: "deleted"};
+    return redirect("/users?revalidate-users=true");
 }
 
 export default function Users() {

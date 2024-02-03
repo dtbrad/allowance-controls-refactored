@@ -48,7 +48,7 @@ export async function action({request, params}: ActionFunctionArgs) {
 
     await createTransaction(userId, amount, description);
 
-    return redirect(`/users/${userId}`);
+    return redirect(`/users/${userId}?revalidate-transactions=true`);
 }
 
 export default function AddTransactionForm() {

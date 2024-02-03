@@ -46,7 +46,7 @@ export async function action({request}: ActionFunctionArgs) {
 
     await createUser({id, password, amount, dayPreference});
 
-    return redirect("/users");
+    return redirect("/users?revalidate-users=true");
 }
 
 export default function CreateUserForm() {
