@@ -1,39 +1,42 @@
-import {Link, useFetcher} from "@remix-run/react";
-import {FormEvent, useState} from "react";
+import {Link, useFetcher, useSearchParams} from "@remix-run/react";
 import styles from "./UserListItem.module.css";
 
 export default function UserListItem({userId}: {userId: string}) {
     const fetcher = useFetcher();
-    const [showConfirmDelete, setShowConfirmDelete] = useState<boolean>(false);
-
-    function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        if (!showConfirmDelete) {
-            event.preventDefault(); // onl
-            setShowConfirmDelete(true);
-        }
-    }
-
-    const buttonActionTitle = showConfirmDelete ? "confirm delete" : "(x)";
+    const [searchParams] = useSearchParams();
+    const confirmDeleteUser = searchParams.get("delete");
 
     return (
         <div className={styles.userListItem}>
             <Link to={`/users/${userId}`}>{userId}</Link>
-            <fetcher.Form method="post" onSubmit={handleSubmit}>
-                <input name="userIdForDeletion" type="hidden" value={userId} />
-                <button type="submit" className={styles.deleteUser}>
-                    {fetcher.state !== "idle"
-                        ? "deleting..."
-                        : buttonActionTitle}
-                </button>
-                {showConfirmDelete && fetcher.state === "idle" && (
-                    <button
-                        className={styles.deleteUser}
-                        onClick={() => setShowConfirmDelete(false)}
-                    >
-                        cancel
-                    </button>
-                )}
-            </fetcher.Form>
+            {confirmDeleteUser !== userId && (
+                <Link to={`/users/?delete=${userId}`}>(x)</Link>
+            )}
+            {confirmDeleteUser === userId && (
+                <>
+                    {fetcher.state !== "idle" ? (
+                        "deleting..."
+                    ) : (
+                        <fetcher.Form method="post">
+                            <span>confirm delete {userId} </span>
+                            <input
+                                name="userIdForDeletion"
+                                type="hidden"
+                                value={userId}
+                            />
+                            <button type="submit" className={styles.deleteUser}>
+                                yes
+                            </button>
+                        </fetcher.Form>
+                    )}
+
+                    {fetcher.state === "idle" && (
+                        <Link className={styles.cancelDeleteUser} to="/users">
+                            no
+                        </Link>
+                    )}
+                </>
+            )}
         </div>
     );
 }
