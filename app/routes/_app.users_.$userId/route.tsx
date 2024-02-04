@@ -150,7 +150,9 @@ export default function UserPage() {
             <TransactionsTable transactions={transactions} />
             {!location.pathname.includes("add-transaction") && (
                 <div className={styles.addTransactionLink}>
-                    <Link to={`/users/${userId}/add-transaction`}>
+                    <Link
+                        to={`/users/${userId}/add-transaction?page=${currentPage}`}
+                    >
                         Open Add Transaction Form
                     </Link>
                 </div>

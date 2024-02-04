@@ -4,7 +4,8 @@ import {
     Link,
     useActionData,
     useFetcher,
-    useParams
+    useParams,
+    useSearchParams
 } from "@remix-run/react";
 import {withZod} from "@remix-validated-form/with-zod";
 import {useEffect, useRef, useState} from "react";
@@ -52,6 +53,8 @@ export async function action({request, params}: ActionFunctionArgs) {
 }
 
 export default function AddTransactionForm() {
+    const [searchParams] = useSearchParams();
+    const currentPageString = searchParams.get("page") || 1;
     const {userId} = useParams();
     const [attemptedSubmit, setAttemptedSubmit] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
@@ -101,7 +104,9 @@ export default function AddTransactionForm() {
     return (
         <div className={styles.addTransactionContainer}>
             <div>
-                <Link to={`/users/${userId}`}>Cancel Add Transaction</Link>
+                <Link to={`/users/${userId}?page=${currentPageString}`}>
+                    Cancel Add Transaction
+                </Link>
             </div>
             <Form
                 className={styles.addTransactionForm}

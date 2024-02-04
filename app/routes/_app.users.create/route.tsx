@@ -44,9 +44,18 @@ export async function action({request}: ActionFunctionArgs) {
 
     const {id, password, amount, dayPreference} = result.data;
 
-    await createUser({id, password, amount, dayPreference});
+    try {
+        await createUser({id, password, amount, dayPreference});
 
-    return redirect("/users?revalidate-users=true");
+        return redirect("/users?revalidate-users=true");
+    } catch (error) {
+        return json({
+            result,
+            // @ts-ignore
+            error: error.message,
+            status: 400
+        });
+    }
 }
 
 export default function CreateUserForm() {
@@ -56,7 +65,7 @@ export default function CreateUserForm() {
     const fetcher = useFetcher<typeof action>();
     const {
         isLoading,
-        serverError,
+        serverError, // TODO: format and display errors
         validationErrors,
         htmlServerFormValues,
         performClientSideFormValidation,
@@ -72,7 +81,10 @@ export default function CreateUserForm() {
             <div>
                 <Link to="/users">Close New User Form</Link>
             </div>
-            <h2 className={styles.createUserTitle}>Create a User</h2>
+            <div className={styles.errorMessage}>
+                {!isLoading && serverError}
+            </div>
+            <h2>Create a User</h2>
             <Form
                 className={styles.createUserForm}
                 ref={formRef}
