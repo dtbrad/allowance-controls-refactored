@@ -47,7 +47,7 @@ export async function action({request}: ActionFunctionArgs) {
     try {
         await createUser({id, password, amount, dayPreference});
 
-        return redirect("/users?revalidate-users=true");
+        return redirect("/users?revalidate=true");
     } catch (error) {
         return json({
             result,

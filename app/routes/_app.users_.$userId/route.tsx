@@ -61,7 +61,7 @@ export async function clientLoader({
         new URL(request.url).searchParams.get("page") || "1";
     const userFromParams = params.userId;
     const revalidateTransactions = new URL(request.url).searchParams.get(
-        "revalidate-transactions"
+        "revalidate"
     );
 
     if (!userFromParams) {
@@ -124,6 +124,7 @@ export default function UserPage() {
     const {userId} = useParams();
     const [searchParams] = useSearchParams();
     const currentPageString = searchParams.get("page");
+    const revalidateTransactions = searchParams.get("revalidate");
     const currentPage = currentPageString ? parseInt(currentPageString) : 1;
     const location = useLocation();
 
@@ -140,7 +141,13 @@ export default function UserPage() {
                     Balance for {userId}: {formatCurrency(balance)}
                 </h2>
                 <div className={styles.controls}>
-                    <Link to={"/users"}>Back to Users</Link>
+                    <Link
+                        to={`/users${
+                            revalidateTransactions ? "?revalidate=true" : ""
+                        }`}
+                    >
+                        Back to Users
+                    </Link>
                     <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}

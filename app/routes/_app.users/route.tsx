@@ -31,9 +31,7 @@ export async function clientLoader({
     request,
     serverLoader
 }: ClientLoaderFunctionArgs) {
-    const revalidateUsers = new URL(request.url).searchParams.get(
-        "revalidate-users"
-    );
+    const revalidateUsers = new URL(request.url).searchParams.get("revalidate");
 
     if (revalidateUsers || !cache) {
         let loaderData = await serverLoader();
@@ -71,7 +69,7 @@ export async function action({request}: ActionFunctionArgs) {
 
     await deleteUser(String(userIdForDeletion));
 
-    return redirect("/users?revalidate-users=true");
+    return redirect("/users?revalidate=true");
 }
 
 export default function Users() {
