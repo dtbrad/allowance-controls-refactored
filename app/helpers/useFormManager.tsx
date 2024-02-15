@@ -20,6 +20,11 @@ export default function useFormManager(
     const serverValidationErrors = fetcher?.data?.result?.error?.fieldErrors;
     const htmlServerValidationErrors = actionData?.result?.error?.fieldErrors;
 
+    const validationErrors =
+        (attemptedSubmit && clientSideValidationErrors) ||
+        serverValidationErrors ||
+        htmlServerValidationErrors;
+
     // to populate form after server validation when js is disabled
     const htmlServerFormValues = actionData?.result?.submittedData;
 
@@ -31,24 +36,23 @@ export default function useFormManager(
 
     async function submitIfValid(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
+
         setAttemptedSubmit(true);
+
         const formData = new FormData(formRef.current!);
         const validationResults = await validator.validate(formData);
 
         if (!validationResults.error) {
-            fetcher.submit(formData, {method: "post"});
-        } else {
-            setClientSideValidationErrors(validationResults.error?.fieldErrors);
+            return fetcher.submit(formData, {method: "post"});
         }
+
+        setClientSideValidationErrors(validationResults.error?.fieldErrors);
     }
 
     return {
         isLoading,
         serverError: serverError || htmlServerError,
-        validationErrors:
-            (attemptedSubmit && clientSideValidationErrors) ||
-            serverValidationErrors ||
-            htmlServerValidationErrors,
+        validationErrors,
         htmlServerFormValues,
         performClientSideFormValidation,
         clientSideValidationErrors,
