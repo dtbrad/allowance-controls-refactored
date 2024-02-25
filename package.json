@@ -9,7 +9,13 @@
         "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
         "postinstall": "prisma generate",
         "start": "remix-serve ./build/index.js",
-        "typecheck": "tsc"
+        "typecheck": "tsc",
+        "db-seed": "NODE_ENV=development prisma db seed",
+        "db-nuke": "prisma db push --force-reset && docker-compose down --volumes --remove-orphans",
+        "setup-dev": "docker-compose up -d && npx prisma generate && npx prisma db push && yarn db-seed"
+    },
+    "prisma": {
+        "seed": "tsx prisma/seed.ts"
     },
     "dependencies": {
         "@prisma/client": "^5.7.1",
@@ -40,6 +46,7 @@
         "prettier": "^3.1.1",
         "prettier-plugin-organize-imports": "^3.2.4",
         "prisma": "^5.7.1",
+        "tsx": "^4.7.1",
         "typescript": "^5.1.6"
     },
     "engines": {
